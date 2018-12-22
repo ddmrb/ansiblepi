@@ -1,0 +1,51 @@
+---
+# configure vnc on raspbian
+# example: ansible-playbook -i ./hosts -l raspberrypi realvnc.yml
+- hosts: all
+  tasks:
+  - name: ensure system is up to date
+    apt:
+     update_cache: yes
+    become: yes
+
+  - name: ensure realvnc is installed
+    apt:
+     name: realvnc-vnc-server
+    become: yes
+
+  - name: ensure realvnc client is installed
+    apt:
+     name: realvnc-vnc-viewer
+    become: yes
+
+  - name: enable vnc server # vncserver-x11-serviced.service    
+    systemd:
+     name: vncserver-x11-serviced.service
+     enabled: yes
+     state: started
+    become: yes     
+
+  - name: set passwd file (vncpasswd -print), preset to 'raspberry' below
+    copy:
+     dest: "/etc/vnc/config.d/common.custom"
+     content: |
+       Authentication=VncAuth
+       Password=c3abbea3b003a0b231737c0541892d72 # change this
+    become: yes
+
+  - name: set auth type
+    copy:
+     dest: "/root/.vnc/config.d/vncserver-x11.custom"
+     content: |
+       Authentication=VncAuth
+    become: yes
+
+
+  - name: restart vnc service 
+    systemd:
+     state: restarted
+     daemon_reload: yes
+     name: vncserver-x11-serviced.service
+    become: yes
+
+
