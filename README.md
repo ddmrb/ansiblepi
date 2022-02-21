@@ -1,4 +1,4 @@
-# ansible
+# ansiblepi
 
 Playbooks to configure raspberry pi with raspbian
 
